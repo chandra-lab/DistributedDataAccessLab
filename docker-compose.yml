@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+
+  customerservice:
+    build: ./CustomerService/CustomerService.Api
+    ports:
+      - "5001:8080"
+    container_name: customerservice
+
+  orderservice:
+    build: ./OrderService/OrderService.Api
+    ports:
+      - "5002:8080"
+    depends_on:
+      - customerservice
+    container_name: orderservice
+
