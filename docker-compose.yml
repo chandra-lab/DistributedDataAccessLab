@@ -3,16 +3,56 @@ version: '3.9'
 services:
 
   customerservice:
-    build: ./CustomerService/CustomerService.Api
+    container_name: customerservice
+    build:
+      context: ./CustomerService/CustomerService.Api
+      dockerfile: Dockerfile
     ports:
       - "5001:8080"
-    container_name: customerservice
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    volumes:
+      - ./CustomerService/CustomerService.Api/Data:/app/Data
+
+  productservice:
+    container_name: productservice
+    build:
+      context: ./ProductService/ProductService.Api
+      dockerfile: Dockerfile
+    ports:
+      - "5003:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    volumes:
+      - ./ProductService/ProductService.Api/Data:/app/Data
 
   orderservice:
-    build: ./OrderService/OrderService.Api
+    container_name: orderservice
+    build:
+      context: ./OrderService/OrderService.Api
+      dockerfile: Dockerfile
     ports:
       - "5002:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      CustomerServiceUrl: http://customerservice:8080/
+      ProductServiceUrl: http://productservice:8080/
     depends_on:
       - customerservice
-    container_name: orderservice
+      - productservice
+    volumes:
+      - ./OrderService/OrderService.Api/Data:/app/Data
+
+  notificationservice:
+    container_name: notificationservice
+    build:
+      context: ./NotificationService/NotificationService.Api
+      dockerfile: Dockerfile
+    ports:
+      - "5004:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    volumes:
+      - ./NotificationService/NotificationService.Api/Data:/app/Data
+
 

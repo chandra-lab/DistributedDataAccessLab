@@ -149,3 +149,4 @@ C:\Users\Asus\ProgramforInternet\DistributedDataAccessLab\OrderService\OrderServ
 C:\Users\Asus\ProgramforInternet\DistributedDataAccessLab\OrderService\OrderService.Api\obj\Debug\net10.0\OrderService.Api.pdb
 C:\Users\Asus\ProgramforInternet\DistributedDataAccessLab\OrderService\OrderService.Api\obj\Debug\net10.0\OrderService.Api.genruntimeconfig.cache
 C:\Users\Asus\ProgramforInternet\DistributedDataAccessLab\OrderService\OrderService.Api\obj\Debug\net10.0\ref\OrderService.Api.dll
+C:\Users\Asus\ProgramforInternet\DistributedDataAccessLab\OrderService\OrderService.Api\obj\Debug\net10.0\OrderService.Api.sourcelink.json
