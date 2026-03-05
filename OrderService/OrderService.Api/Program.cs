@@ -23,6 +23,7 @@ builder.Services.AddHttpClient<IProductClient, ProductClient>(client =>
     var url = "http://productservice:8080/";
     client.BaseAddress = new Uri(url);
 });
+builder.Services.AddSingleton<IEventPublisher, RabbitMqPublisher>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())

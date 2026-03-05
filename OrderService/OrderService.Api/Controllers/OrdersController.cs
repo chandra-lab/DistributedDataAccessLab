@@ -13,15 +13,18 @@ public class OrdersController : ControllerBase
     private readonly OrdersDbContext _context;
     private readonly ICustomerClient _customerClient;
     private readonly IProductClient _productClient;
+    private readonly IEventPublisher _eventPublisher;
 
     public OrdersController(
         OrdersDbContext context,
         ICustomerClient customerClient,
-        IProductClient productClient)
+        IProductClient productClient,
+        IEventPublisher eventPublisher)
     {
         _context = context;
         _customerClient = customerClient;
         _productClient = productClient;
+        _eventPublisher = eventPublisher;
     }
 
     // GET: api/orders
@@ -60,6 +63,15 @@ public class OrdersController : ControllerBase
 
         await _context.Orders.AddAsync(order);
         await _context.SaveChangesAsync();
+
+        // Publish event to RabbitMQ after saving
+        _eventPublisher.PublishOrderCreated(new OrderCreatedEvent
+        {
+            OrderId = order.Id,
+            CustomerId = order.CustomerId,
+            ProductId = order.ProductId,
+            Quantity = order.Quantity
+        });
 
         return CreatedAtAction(nameof(GetById), new { id = order.Id }, order);
     }

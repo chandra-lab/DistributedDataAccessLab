@@ -9,6 +9,7 @@ builder.Services.AddDbContext<NotificationDbContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHostedService<OrderCreatedConsumer>();
 
 var app = builder.Build();
 

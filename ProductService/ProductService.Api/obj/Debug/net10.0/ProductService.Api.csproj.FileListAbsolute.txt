@@ -149,3 +149,4 @@ C:\Users\Asus\ProgramforInternet\DistributedDataAccessLab\ProductService\Product
 C:\Users\Asus\ProgramforInternet\DistributedDataAccessLab\ProductService\ProductService.Api\obj\Debug\net10.0\ProductService.Api.pdb
 C:\Users\Asus\ProgramforInternet\DistributedDataAccessLab\ProductService\ProductService.Api\obj\Debug\net10.0\ProductService.Api.genruntimeconfig.cache
 C:\Users\Asus\ProgramforInternet\DistributedDataAccessLab\ProductService\ProductService.Api\obj\Debug\net10.0\ref\ProductService.Api.dll
+C:\Users\Asus\ProgramforInternet\DistributedDataAccessLab\ProductService\ProductService.Api\bin\Debug\net10.0\RabbitMQ.Client.dll

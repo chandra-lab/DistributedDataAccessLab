@@ -1,6 +1,19 @@
-version: '3.9'
-
 services:
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   customerservice:
     container_name: customerservice
@@ -37,9 +50,14 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       CustomerServiceUrl: http://customerservice:8080/
       ProductServiceUrl: http://productservice:8080/
+      RABBITMQ_HOST: rabbitmq
     depends_on:
-      - customerservice
-      - productservice
+      customerservice:
+        condition: service_started
+      productservice:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
     volumes:
       - ./OrderService/OrderService.Api/Data:/app/Data
 
@@ -52,7 +70,9 @@ services:
       - "5004:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      RABBITMQ_HOST: rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     volumes:
       - ./NotificationService/NotificationService.Api/Data:/app/Data
-
-
