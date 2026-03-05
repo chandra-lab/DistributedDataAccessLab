@@ -1,14 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Api.Data;
+using NotificationService.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<NotificationDbContext>(options =>
-    options.UseSqlite("Data Source=Data/notifications.db"));
+    options.UseSqlite($"Data Source={Path.Combine(AppContext.BaseDirectory, "Data", "notifications.db")}"));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddHostedService<OrderCreatedConsumer>();
 
 var app = builder.Build();
