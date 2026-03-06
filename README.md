@@ -1,13 +1,19 @@
 # Distributed Data Access Lab
 ## Containerized E-Commerce Microservices Backend
 **Course:** CSCI 6844 - Programming for the Internet  
+**Instructor:** Salma Noor  
+
+---
 
 ## Overview
+
 A containerized distributed backend for a simplified e-commerce platform built with ASP.NET Core 8, Entity Framework Core, Docker, Docker Compose, and RabbitMQ. The system follows the Database-per-Service pattern with four independent microservices, each owning its own database and exposing a REST API.
 
+---
 
 ## Architecture
 
+```
 Client (Browser / Swagger)
         |
         | HTTP POST /api/orders
@@ -15,8 +21,8 @@ Client (Browser / Swagger)
   +----------------+         HTTP GET        +------------------+
   |  OrderService  | ----------------------> | CustomerService  |
   |   Port: 5002   |                         |   Port: 5001     |
-  |  orders.db     |                         | customers.db     |
-  +----------------+                         +------------------+
+  |  orders.db     | ----------------------> | customers.db     |
+  +----------------+   HTTP GET              +------------------+
         |
         | HTTP GET        +------------------+
         +---------------> |  ProductService  |
@@ -39,45 +45,66 @@ Client (Browser / Swagger)
   |     Port: 5004       |
   |  notifications.db    |
   +----------------------+
+```
+
+---
 
 ## Services
 
-| Service               | Port | Database           | Description                       |
-| CustomerService       | 5001 | customers.db       | Manage customer records           |
-| OrderService          | 5002 | orders.db          | Create and track orders           |
-| ProductService        | 5003 | products.db        | Manage product catalog and stock  |
-| NotificationService   | 5004 | notifications.db   | Store order notifications         |
-| RabbitMQ              | 5672 / 15672 | —          | Message broker for async events   |
+| Service | Port | Database | Description |
+|---|---|---|---|
+| CustomerService | 5001 | customers.db | Manage customer records |
+| OrderService | 5002 | orders.db | Create and track orders |
+| ProductService | 5003 | products.db | Manage product catalog and stock |
+| NotificationService | 5004 | notifications.db | Store order notifications |
+| RabbitMQ | 5672 / 15672 | — | Message broker for async events |
+
+---
 
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
+---
+
 ## Getting Started
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/chandra-lab/DistributedDataAccessLab.git
+git clone <your-repo-url>
 cd DistributedDataAccessLab
 ```
-### 2. Start all services
+
+### 2. Create Data folders
+
+```bash
+mkdir CustomerService/CustomerService.Api/Data
+mkdir OrderService/OrderService.Api/Data
+mkdir ProductService/ProductService.Api/Data
+mkdir NotificationService/NotificationService.Api/Data
+```
+
+### 3. Start all services
 
 ```bash
 docker compose up --build
 ```
+
 This will build all 4 service images, start RabbitMQ, and launch everything. First run takes a few minutes to download base images.
 
-### 3. Access the APIs
+### 4. Access the APIs
 
-| Service               | Swagger URL                   |
-| CustomerService       | http://localhost:5001/swagger |
-| OrderService          | http://localhost:5002/swagger |
-| ProductService        | http://localhost:5003/swagger |
-| NotificationService   | http://localhost:5004/swagger |
-| RabbitMQ Dashboard    | http://localhost:15672 (guest / guest) |
+| Service | Swagger URL |
+|---|---|
+| CustomerService | http://localhost:5001/swagger |
+| OrderService | http://localhost:5002/swagger |
+| ProductService | http://localhost:5003/swagger |
+| NotificationService | http://localhost:5004/swagger |
+| RabbitMQ Dashboard | http://localhost:15672 (guest / guest) |
 
+---
 
 ## Testing the Full Flow
 
@@ -116,8 +143,11 @@ Follow this sequence to test everything end to end:
 
 **Step 5 - Test validation** - Try creating an order with `customerId: 999`. You should get a `400 Bad Request` confirming synchronous HttpClient validation is working.
 
+---
+
 ## Project Structure
 
+```
 DistributedDataAccessLab/
 |
 |-- docker-compose.yml
@@ -157,6 +187,9 @@ DistributedDataAccessLab/
 |       |-- Services/          # OrderCreatedConsumer.cs
 |       |-- Program.cs
 |       └── Dockerfile
+```
+
+---
 
 ## Key Design Decisions
 
@@ -172,41 +205,49 @@ After saving an order, OrderService publishes an `OrderCreated` event to RabbitM
 ### EF Core Async
 All database operations use async EF Core methods (`ToListAsync`, `FindAsync`, `AddAsync`, `SaveChangesAsync`) to keep the web server non-blocking under load.
 
+---
+
 ## API Reference
 
 ### CustomerService (port 5001)
 
-| Method    | Endpoint              | Description           |
-| GET       | /api/customers        | Get all customers     |
-| GET       | /api/customers/{id}   | Get customer by ID    |
-| POST      | /api/customers        | Create a customer     |
-| PUT       | /api/customers/{id}   | Update a customer     |
-| DELETE    | /api/customers/{id}   | Delete a customer     |
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | /api/customers | Get all customers |
+| GET | /api/customers/{id} | Get customer by ID |
+| POST | /api/customers | Create a customer |
+| PUT | /api/customers/{id} | Update a customer |
+| DELETE | /api/customers/{id} | Delete a customer |
 
 ### ProductService (port 5003)
 
-| Method    | Endpoint              | Description       |
-| GET       | /api/products         | Get all products  |
-| GET       | /api/products/{id}    | Get product by ID |
-| POST      | /api/products         | Create a product  |
-| PUT       | /api/products/{id}    | Update a product  |
-| DELETE    | /api/products/{id}    | Delete a product  |
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | /api/products | Get all products |
+| GET | /api/products/{id} | Get product by ID |
+| POST | /api/products | Create a product |
+| PUT | /api/products/{id} | Update a product |
+| DELETE | /api/products/{id} | Delete a product |
 
 ### OrderService (port 5002)
 
-| Method    | Endpoint          | Description                                       |
-| GET       | /api/orders       | Get all orders                                    |
-| GET       | /api/orders/{id}  | Get order by ID                                   |
-| POST      | /api/orders       | Create an order (validates customer and product)  |
-| DELETE    | /api/orders/{id}  | Delete an order                                   |
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | /api/orders | Get all orders |
+| GET | /api/orders/{id} | Get order by ID |
+| POST | /api/orders | Create an order (validates customer and product) |
+| DELETE | /api/orders/{id} | Delete an order |
 
 ### NotificationService (port 5004)
 
-| Method    | Endpoint                  | Description                   |
-| GET       | /api/notifications        | Get all notifications         |
-| GET       | /api/notifications/{id}   | Get notification by ID        |
-| POST      | /api/notifications        | Create a notification manually|
-| DELETE    | /api/notifications/{id}   | Delete a notification         |
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | /api/notifications | Get all notifications |
+| GET | /api/notifications/{id} | Get notification by ID |
+| POST | /api/notifications | Create a notification manually |
+| DELETE | /api/notifications/{id} | Delete a notification |
+
+---
 
 ## Docker Commands
 
@@ -231,13 +272,16 @@ docker logs notificationservice
 docker ps
 ```
 
+---
+
 ## Technologies Used
 
-| Technology            | Version | Purpose                         |
-| ASP.NET Core          | 10.0    | Web API framework               |
-| Entity Framework Core | 10.0.3  | ORM and database access         |
-| SQLite                | —       | Per-service database            |
-| RabbitMQ              | 6.8.1   | Async message broker            |
-| Docker                | —       | Service containerization        |
-| Docker Compose        | —       | Multi-container orchestration   |
-| Swagger / OpenAPI     | —       | API documentation and testing   |
+| Technology | Version | Purpose |
+|---|---|---|
+| ASP.NET Core | 10.0 | Web API framework |
+| Entity Framework Core | 8.0 | ORM and database access |
+| SQLite | — | Per-service database |
+| RabbitMQ | 3-management | Async message broker |
+| Docker | — | Service containerization |
+| Docker Compose | — | Multi-container orchestration |
+| Swagger / OpenAPI | — | API documentation and testing |
