@@ -1,7 +1,6 @@
 # Distributed Data Access Lab
 ## Containerized E-Commerce Microservices Backend
 **Course:** CSCI 6844 - Programming for the Internet  
-**Instructor:** Salma Noor  
 
 ---
 
@@ -21,8 +20,8 @@ Client (Browser / Swagger)
   +----------------+         HTTP GET        +------------------+
   |  OrderService  | ----------------------> | CustomerService  |
   |   Port: 5002   |                         |   Port: 5001     |
-  |  orders.db     | ----------------------> | customers.db     |
-  +----------------+   HTTP GET              +------------------+
+  |  orders.db     |                         | customers.db     |
+  +----------------+                         +------------------+
         |
         | HTTP GET        +------------------+
         +---------------> |  ProductService  |
@@ -73,20 +72,11 @@ Client (Browser / Swagger)
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/chandra-lab/DistributedDataAccessLab.git
 cd DistributedDataAccessLab
 ```
 
-### 2. Create Data folders
-
-```bash
-mkdir CustomerService/CustomerService.Api/Data
-mkdir OrderService/OrderService.Api/Data
-mkdir ProductService/ProductService.Api/Data
-mkdir NotificationService/NotificationService.Api/Data
-```
-
-### 3. Start all services
+### 2. Start all services
 
 ```bash
 docker compose up --build
@@ -94,7 +84,7 @@ docker compose up --build
 
 This will build all 4 service images, start RabbitMQ, and launch everything. First run takes a few minutes to download base images.
 
-### 4. Access the APIs
+### 3. Access the APIs
 
 | Service | Swagger URL |
 |---|---|
@@ -279,9 +269,9 @@ docker ps
 | Technology | Version | Purpose |
 |---|---|---|
 | ASP.NET Core | 10.0 | Web API framework |
-| Entity Framework Core | 8.0 | ORM and database access |
-| SQLite | — | Per-service database |
-| RabbitMQ | 3-management | Async message broker |
-| Docker | — | Service containerization |
-| Docker Compose | — | Multi-container orchestration |
-| Swagger / OpenAPI | — | API documentation and testing |
+| Entity Framework Core | 10.0 | ORM and database access |
+| SQLite | 10.0 | Per-service database |
+| RabbitMQ | 6.8.1 | Async message broker |
+| Docker | - | Service containerization |
+| Docker Compose | - | Multi-container orchestration |
+| Swagger / OpenAPI | - | API documentation and testing |
