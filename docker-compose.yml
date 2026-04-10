@@ -80,7 +80,7 @@ services:
   apigateway:
     container_name: apigateway
     build:
-      context: ./ApiGateway/ApiGateway
+      context: ./ApiGateway
       dockerfile: Dockerfile
     ports:
       - "5000:8080"
