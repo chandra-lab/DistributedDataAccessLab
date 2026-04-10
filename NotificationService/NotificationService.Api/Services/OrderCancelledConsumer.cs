@@ -7,14 +7,20 @@ using NotificationService.Api.Models;
 
 namespace NotificationService.Api.Services;
 
-public class OrderCreatedConsumer : BackgroundService
+/// <summary>
+/// Listens on the "order_cancelled" queue and saves a notification record
+/// for every OrderCancelled event published by OrderService.
+/// </summary>
+public class OrderCancelledConsumer : BackgroundService
 {
-    private readonly ILogger<OrderCreatedConsumer> _logger;
+    private readonly ILogger<OrderCancelledConsumer> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
     private IConnection? _connection;
     private IModel? _channel;
 
-    public OrderCreatedConsumer(ILogger<OrderCreatedConsumer> logger, IServiceScopeFactory scopeFactory)
+    public OrderCancelledConsumer(
+        ILogger<OrderCancelledConsumer> logger,
+        IServiceScopeFactory scopeFactory)
     {
         _logger = logger;
         _scopeFactory = scopeFactory;
@@ -22,6 +28,7 @@ public class OrderCreatedConsumer : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        // Retry loop so we survive RabbitMQ startup latency
         for (int i = 0; i < 10; i++)
         {
             try
@@ -34,42 +41,53 @@ public class OrderCreatedConsumer : BackgroundService
                 };
                 _connection = factory.CreateConnection();
                 _channel = _connection.CreateModel();
-                _channel.QueueDeclare(queue: "order_created", durable: true,
-                    exclusive: false, autoDelete: false, arguments: null);
+                _channel.QueueDeclare(
+                    queue: "order_cancelled",
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
 
                 var consumer = new EventingBasicConsumer(_channel);
                 consumer.Received += async (_, ea) =>
                 {
                     var body = ea.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
-                    var order = JsonSerializer.Deserialize<OrderCreatedEvent>(message);
+                    var evt = JsonSerializer.Deserialize<OrderCancelledEvent>(message);
 
-                    if (order != null)
+                    if (evt != null)
                     {
                         using var scope = _scopeFactory.CreateScope();
-                        var db = scope.ServiceProvider.GetRequiredService<NotificationDbContext>();
+                        var db = scope.ServiceProvider
+                            .GetRequiredService<NotificationDbContext>();
 
                         var notification = new Notification
                         {
-                            OrderId = order.OrderId,
-                            CustomerId = order.CustomerId,
-                            Message = $"Order #{order.OrderId} placed for Customer #{order.CustomerId}.",
-                            EventType = "OrderCreated",
+                            OrderId = evt.OrderId,
+                            CustomerId = evt.CustomerId,
+                            Message = $"Order #{evt.OrderId} was cancelled for Customer #{evt.CustomerId}.",
+                            EventType = "OrderCancelled",
                             CreatedAt = DateTime.UtcNow
                         };
                         await db.Notifications.AddAsync(notification);
                         await db.SaveChangesAsync();
-                        _logger.LogInformation("Notification saved for Order {Id}", order.OrderId);
+                        _logger.LogInformation(
+                            "Cancellation notification saved for Order {Id}", evt.OrderId);
                     }
                 };
 
-                _channel.BasicConsume(queue: "order_created", autoAck: true, consumer: consumer);
-                _logger.LogInformation("OrderCreatedConsumer is listening.");
+                _channel.BasicConsume(
+                    queue: "order_cancelled",
+                    autoAck: true,
+                    consumer: consumer);
+
+                _logger.LogInformation("OrderCancelledConsumer is listening.");
                 break;
             }
             catch (Exception ex)
             {
-                _logger.LogWarning("RabbitMQ not ready ({Attempt}/10): {Msg}", i + 1, ex.Message);
+                _logger.LogWarning(
+                    "RabbitMQ not ready ({Attempt}/10): {Msg}", i + 1, ex.Message);
                 await Task.Delay(5000, stoppingToken);
             }
         }
@@ -86,7 +104,7 @@ public class OrderCreatedConsumer : BackgroundService
     }
 }
 
-public class OrderCreatedEvent
+public class OrderCancelledEvent
 {
     public int OrderId { get; set; }
     public int CustomerId { get; set; }

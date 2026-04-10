@@ -1,0 +1,42 @@
+# Build output
+bin/
+obj/
+
+# User-specific VS files
+*.user
+*.suo
+.vs/
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# SQLite databases (runtime data, not source)
+*.db
+*.db-shm
+*.db-wal
+
+# .NET secrets
+**/appsettings.*.json
+!**/appsettings.json
+!**/appsettings.Development.json
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Docker
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

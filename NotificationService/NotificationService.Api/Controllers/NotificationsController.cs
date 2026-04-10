@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Api.Data;
-using NotificationService.Api.Models;
+using NotificationService.Api.DTOs;
 
 namespace NotificationService.Api.Controllers;
 
@@ -16,44 +16,45 @@ public class NotificationsController : ControllerBase
         _context = context;
     }
 
-    // GET: api/notifications
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var notifications = await _context.Notifications
-            .OrderByDescending(n => n.CreatedAt)
-            .ToListAsync();
-        return Ok(notifications);
+        var notifications = await _context.Notifications.ToListAsync();
+        var dtos = notifications.Select(n => new NotificationResponseDto
+        {
+            Id = n.Id,
+            OrderId = n.OrderId,
+            CustomerId = n.CustomerId,
+            Message = n.Message,
+            EventType = n.EventType,
+            CreatedAt = n.CreatedAt
+        });
+        return Ok(dtos);
     }
 
-    // GET: api/notifications/5
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var notification = await _context.Notifications.FindAsync(id);
-        if (notification == null) return NotFound();
-        return Ok(notification);
+        var n = await _context.Notifications.FindAsync(id);
+        if (n == null) return NotFound();
+        return Ok(new NotificationResponseDto
+        {
+            Id = n.Id,
+            OrderId = n.OrderId,
+            CustomerId = n.CustomerId,
+            Message = n.Message,
+            EventType = n.EventType,
+            CreatedAt = n.CreatedAt
+        });
     }
 
-    // POST: api/notifications
-    [HttpPost]
-    public async Task<IActionResult> Create(Notification notification)
-    {
-        notification.CreatedAt = DateTime.UtcNow;
-        await _context.Notifications.AddAsync(notification);
-        await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = notification.Id }, notification);
-    }
-
-    // DELETE: api/notifications/5
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var notification = await _context.Notifications.FindAsync(id);
-        if (notification == null) return NotFound();
-
-        _context.Notifications.Remove(notification);
-        await _context.SaveChangesAsync();
+        var n = await _context.Notifications.FindAsync(id);
+        if (n == null) return NotFound();
+        _context.Notifications.Remove(n);
+        await _context.Notifications.Where(x => x.Id == id).ExecuteDeleteAsync();
         return NoContent();
     }
 }

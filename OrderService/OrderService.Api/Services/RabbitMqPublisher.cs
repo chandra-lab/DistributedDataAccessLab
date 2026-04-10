@@ -7,6 +7,7 @@ namespace OrderService.Api.Services;
 public interface IEventPublisher
 {
     void PublishOrderCreated(OrderCreatedEvent orderEvent);
+    void PublishOrderCancelled(OrderCancelledEvent orderEvent);
 }
 
 public class RabbitMqPublisher : IEventPublisher, IDisposable
@@ -33,8 +34,13 @@ public class RabbitMqPublisher : IEventPublisher, IDisposable
             };
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
+
             _channel.QueueDeclare(queue: "order_created", durable: true,
                 exclusive: false, autoDelete: false, arguments: null);
+
+            _channel.QueueDeclare(queue: "order_cancelled", durable: true,
+                exclusive: false, autoDelete: false, arguments: null);
+
             _logger.LogInformation("Connected to RabbitMQ.");
         }
         catch (Exception ex)
@@ -45,18 +51,28 @@ public class RabbitMqPublisher : IEventPublisher, IDisposable
 
     public void PublishOrderCreated(OrderCreatedEvent orderEvent)
     {
+        Publish("order_created", orderEvent);
+    }
+
+    public void PublishOrderCancelled(OrderCancelledEvent orderEvent)
+    {
+        Publish("order_cancelled", orderEvent);
+    }
+
+    private void Publish<T>(string queue, T eventObj)
+    {
         if (_channel == null)
         {
-            _logger.LogWarning("RabbitMQ channel not available. Skipping publish.");
+            _logger.LogWarning("RabbitMQ channel not available. Skipping publish to {Queue}.", queue);
             return;
         }
-        var message = JsonSerializer.Serialize(orderEvent);
+        var message = JsonSerializer.Serialize(eventObj);
         var body = Encoding.UTF8.GetBytes(message);
         var props = _channel.CreateBasicProperties();
         props.Persistent = true;
-        _channel.BasicPublish(exchange: "", routingKey: "order_created",
+        _channel.BasicPublish(exchange: "", routingKey: queue,
             basicProperties: props, body: body);
-        _logger.LogInformation("Published OrderCreated: {Message}", message);
+        _logger.LogInformation("Published to {Queue}: {Message}", queue, message);
     }
 
     public void Dispose()
@@ -67,6 +83,14 @@ public class RabbitMqPublisher : IEventPublisher, IDisposable
 }
 
 public class OrderCreatedEvent
+{
+    public int OrderId { get; set; }
+    public int CustomerId { get; set; }
+    public int ProductId { get; set; }
+    public int Quantity { get; set; }
+}
+
+public class OrderCancelledEvent
 {
     public int OrderId { get; set; }
     public int CustomerId { get; set; }

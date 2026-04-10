@@ -1,0 +1,89 @@
+{
+  "Routes": [
+    {
+      "SwaggerKey": "customerservice",
+      "UpstreamPathTemplate": "/api/customers/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/customers/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "customerservice", "Port": 8080 }
+      ]
+    },
+    {
+      "SwaggerKey": "productservice",
+      "UpstreamPathTemplate": "/api/products/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/products/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "productservice", "Port": 8080 }
+      ]
+    },
+    {
+      "SwaggerKey": "orderservice",
+      "UpstreamPathTemplate": "/api/orders/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/orders/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "orderservice", "Port": 8080 }
+      ]
+    },
+    {
+      "SwaggerKey": "notificationservice",
+      "UpstreamPathTemplate": "/api/notifications/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "DELETE" ],
+      "DownstreamPathTemplate": "/api/notifications/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "notificationservice", "Port": 8080 }
+      ]
+    }
+  ],
+  "SwaggerEndPoints": [
+    {
+      "Key": "customerservice",
+      "Config": [
+        {
+          "Name": "Customer Service",
+          "Version": "v1",
+          "Url": "http://customerservice:8080/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "productservice",
+      "Config": [
+        {
+          "Name": "Product Service",
+          "Version": "v1",
+          "Url": "http://productservice:8080/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "orderservice",
+      "Config": [
+        {
+          "Name": "Order Service",
+          "Version": "v1",
+          "Url": "http://orderservice:8080/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "notificationservice",
+      "Config": [
+        {
+          "Name": "Notification Service",
+          "Version": "v1",
+          "Url": "http://notificationservice:8080/swagger/v1/swagger.json"
+        }
+      ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:5000"
+  }
+}

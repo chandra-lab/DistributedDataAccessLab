@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OrderService.Api.Data;
+using OrderService.Api.DTOs;
 using OrderService.Api.Models;
 using OrderService.Api.Services;
 
@@ -32,7 +33,17 @@ public class OrdersController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var orders = await _context.Orders.ToListAsync();
-        return Ok(orders);
+        var dtos = orders.Select(o => new OrderResponseDto
+        {
+            Id = o.Id,
+            CustomerId = o.CustomerId,
+            ProductId = o.ProductId,
+            Quantity = o.Quantity,
+            TotalPrice = o.TotalPrice,
+            Status = o.Status,
+            CreatedAt = o.CreatedAt
+        });
+        return Ok(dtos);
     }
 
     // GET: api/orders/5
@@ -41,30 +52,44 @@ public class OrdersController : ControllerBase
     {
         var order = await _context.Orders.FindAsync(id);
         if (order == null) return NotFound();
-        return Ok(order);
+        return Ok(new OrderResponseDto
+        {
+            Id = order.Id,
+            CustomerId = order.CustomerId,
+            ProductId = order.ProductId,
+            Quantity = order.Quantity,
+            TotalPrice = order.TotalPrice,
+            Status = order.Status,
+            CreatedAt = order.CreatedAt
+        });
     }
 
     // POST: api/orders
     [HttpPost]
-    public async Task<IActionResult> Create(Order order)
+    public async Task<IActionResult> Create(CreateOrderDto dto)
     {
-        // Synchronous validation: check customer exists via HttpClient
-        var customerExists = await _customerClient.CustomerExistsAsync(order.CustomerId);
+        var customerExists = await _customerClient.CustomerExistsAsync(dto.CustomerId);
         if (!customerExists)
-            return BadRequest($"Customer with ID {order.CustomerId} does not exist.");
+            return BadRequest($"Customer with ID {dto.CustomerId} does not exist.");
 
-        // Synchronous validation: check product exists via HttpClient
-        var productExists = await _productClient.ProductExistsAsync(order.ProductId);
+        var productExists = await _productClient.ProductExistsAsync(dto.ProductId);
         if (!productExists)
-            return BadRequest($"Product with ID {order.ProductId} does not exist.");
+            return BadRequest($"Product with ID {dto.ProductId} does not exist.");
 
-        order.CreatedAt = DateTime.UtcNow;
-        order.Status = "Pending";
+        var order = new Order
+        {
+            CustomerId = dto.CustomerId,
+            ProductId = dto.ProductId,
+            Quantity = dto.Quantity,
+            TotalPrice = dto.TotalPrice,
+            Status = "Pending",
+            CreatedAt = DateTime.UtcNow
+        };
 
         await _context.Orders.AddAsync(order);
         await _context.SaveChangesAsync();
 
-        // Publish event to RabbitMQ after saving
+        // Publish OrderCreated event
         _eventPublisher.PublishOrderCreated(new OrderCreatedEvent
         {
             OrderId = order.Id,
@@ -73,10 +98,21 @@ public class OrdersController : ControllerBase
             Quantity = order.Quantity
         });
 
-        return CreatedAtAction(nameof(GetById), new { id = order.Id }, order);
+        var responseDto = new OrderResponseDto
+        {
+            Id = order.Id,
+            CustomerId = order.CustomerId,
+            ProductId = order.ProductId,
+            Quantity = order.Quantity,
+            TotalPrice = order.TotalPrice,
+            Status = order.Status,
+            CreatedAt = order.CreatedAt
+        };
+
+        return CreatedAtAction(nameof(GetById), new { id = order.Id }, responseDto);
     }
 
-    // DELETE: api/orders/5
+    // DELETE: api/orders/5  (also publishes OrderCancelled event)
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -85,6 +121,16 @@ public class OrdersController : ControllerBase
 
         _context.Orders.Remove(order);
         await _context.SaveChangesAsync();
+
+        // Publish OrderCancelled event
+        _eventPublisher.PublishOrderCancelled(new OrderCancelledEvent
+        {
+            OrderId = order.Id,
+            CustomerId = order.CustomerId,
+            ProductId = order.ProductId,
+            Quantity = order.Quantity
+        });
+
         return NoContent();
     }
 }

@@ -6,5 +6,6 @@ public class Notification
     public int OrderId { get; set; }
     public int CustomerId { get; set; }
     public string Message { get; set; } = string.Empty;
+    public string EventType { get; set; } = "OrderCreated";   // NEW FIELD
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
