@@ -48,7 +48,7 @@
         {
           "Name": "Customer Service",
           "Version": "v1",
-          "Url": "http://customerservice:8080/swagger/v1/swagger.json"
+          "Url": "https://friendly-space-disco-9wq9955pr6pfxxg5-5001.app.github.dev/swagger/v1/swagger.json"
         }
       ]
     },
@@ -58,7 +58,7 @@
         {
           "Name": "Product Service",
           "Version": "v1",
-          "Url": "http://productservice:8080/swagger/v1/swagger.json"
+          "Url": "https://friendly-space-disco-9wq9955pr6pfxxg5-5003.app.github.dev/swagger/v1/swagger.json"
         }
       ]
     },
@@ -68,7 +68,7 @@
         {
           "Name": "Order Service",
           "Version": "v1",
-          "Url": "http://orderservice:8080/swagger/v1/swagger.json"
+          "Url": "https://friendly-space-disco-9wq9955pr6pfxxg5-5002.app.github.dev/swagger/v1/swagger.json"
         }
       ]
     },
@@ -78,12 +78,12 @@
         {
           "Name": "Notification Service",
           "Version": "v1",
-          "Url": "http://notificationservice:8080/swagger/v1/swagger.json"
+          "Url": "https://friendly-space-disco-9wq9955pr6pfxxg5-5004.app.github.dev/swagger/v1/swagger.json"
         }
       ]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:5000"
+    "BaseUrl": "https://friendly-space-disco-9wq9955pr6pfxxg5-5000.app.github.dev"
   }
 }
