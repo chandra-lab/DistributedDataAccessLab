@@ -22,10 +22,9 @@ using (var scope = app.Services.CreateScope())
     db.Database.EnsureCreated();
 }
 
-app.UseSwagger();
-
 if (app.Environment.IsDevelopment())
 {
+    app.UseSwagger(c => c.RouteTemplate = "swagger/{documentName}/swagger.json");
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "NotificationService API V1");
