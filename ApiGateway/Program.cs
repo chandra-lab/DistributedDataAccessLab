@@ -11,7 +11,6 @@ builder.Services.AddSwaggerForOcelot(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// HttpClients for the aggregation endpoint
 builder.Services.AddHttpClient("orderservice",      c => c.BaseAddress = new Uri("http://orderservice:8080/"));
 builder.Services.AddHttpClient("customerservice",   c => c.BaseAddress = new Uri("http://customerservice:8080/"));
 builder.Services.AddHttpClient("productservice",    c => c.BaseAddress = new Uri("http://productservice:8080/"));

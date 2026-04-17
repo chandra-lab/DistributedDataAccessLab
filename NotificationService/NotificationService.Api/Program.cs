@@ -12,6 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddHostedService<OrderCreatedConsumer>();
+builder.Services.AddHostedService<OrderCancelledConsumer>();
 
 var app = builder.Build();
 
@@ -21,9 +22,15 @@ using (var scope = app.Services.CreateScope())
     db.Database.EnsureCreated();
 }
 
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "NotificationService API V1");
+        c.RoutePrefix = string.Empty;
+    });
+}
 
 app.MapControllers();
-
 app.Run();
