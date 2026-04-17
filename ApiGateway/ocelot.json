@@ -5,9 +5,9 @@
       "UpstreamPathTemplate": "/api/customers/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "DownstreamPathTemplate": "/api/customers/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        { "Host": "friendly-space-disco-9wq9955pr6pfxxg5-5001.app.github.dev", "Port": 443 }
+        { "Host": "customerservice", "Port": 8080 }
       ]
     },
     {
@@ -15,9 +15,9 @@
       "UpstreamPathTemplate": "/api/products/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "DownstreamPathTemplate": "/api/products/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        { "Host": "friendly-space-disco-9wq9955pr6pfxxg5-5003.app.github.dev", "Port": 443 }
+        { "Host": "productservice", "Port": 8080 }
       ]
     },
     {
@@ -25,9 +25,9 @@
       "UpstreamPathTemplate": "/api/orders/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "DownstreamPathTemplate": "/api/orders/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        { "Host": "friendly-space-disco-9wq9955pr6pfxxg5-5002.app.github.dev", "Port": 443 }
+        { "Host": "orderservice", "Port": 8080 }
       ]
     },
     {
@@ -35,9 +35,9 @@
       "UpstreamPathTemplate": "/api/notifications/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "DELETE" ],
       "DownstreamPathTemplate": "/api/notifications/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        { "Host": "friendly-space-disco-9wq9955pr6pfxxg5-5004.app.github.dev", "Port": 443 }
+        { "Host": "notificationservice", "Port": 8080 }
       ]
     }
   ],
@@ -45,25 +45,25 @@
     {
       "Key": "customerservice",
       "Config": [{ "Name": "Customer Service", "Version": "v1",
-        "Url": "https://friendly-space-disco-9wq9955pr6pfxxg5-5001.app.github.dev/swagger/v1/swagger.json" }]
+        "Url": "http://customerservice:8080/swagger/v1/swagger.json" }]
     },
     {
       "Key": "productservice",
       "Config": [{ "Name": "Product Service", "Version": "v1",
-        "Url": "https://friendly-space-disco-9wq9955pr6pfxxg5-5003.app.github.dev/swagger/v1/swagger.json" }]
+        "Url": "http://productservice:8080/swagger/v1/swagger.json" }]
     },
     {
       "Key": "orderservice",
       "Config": [{ "Name": "Order Service", "Version": "v1",
-        "Url": "https://friendly-space-disco-9wq9955pr6pfxxg5-5002.app.github.dev/swagger/v1/swagger.json" }]
+        "Url": "http://orderservice:8080/swagger/v1/swagger.json" }]
     },
     {
       "Key": "notificationservice",
       "Config": [{ "Name": "Notification Service", "Version": "v1",
-        "Url": "https://friendly-space-disco-9wq9955pr6pfxxg5-5004.app.github.dev/swagger/v1/swagger.json" }]
+        "Url": "http://notificationservice:8080/swagger/v1/swagger.json" }]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://friendly-space-disco-9wq9955pr6pfxxg5-5000.app.github.dev"
+    "BaseUrl": "http://localhost:5000"
   }
 }
