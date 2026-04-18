@@ -11,11 +11,11 @@ builder.Services.AddSwaggerForOcelot(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// CORS: allow Blazor WASM frontend (port 5005) to call the gateway
+// CORS: allow Blazor frontend from both local Docker and GitHub Codespaces
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("BlazorPolicy", policy =>
-        policy.WithOrigins("http://localhost:5005")
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
