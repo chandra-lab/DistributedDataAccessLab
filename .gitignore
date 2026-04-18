@@ -40,3 +40,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Blazor WASM - generated publish output (not source)
+**/wwwroot/_framework/

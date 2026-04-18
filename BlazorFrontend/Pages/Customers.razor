@@ -1,0 +1,105 @@
+@page "/customers"
+@inject BlazorFrontend.Services.CustomerService CustomerService
+@using BlazorFrontend.Models
+
+<PageTitle>Customers</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>👤 Customers</h2>
+    <button class="btn btn-success" @onclick="ToggleForm">
+        @(showForm ? "Cancel" : "+ Add Customer")
+    </button>
+</div>
+
+@if (showForm)
+{
+    <div class="card mb-4 shadow-sm border-success">
+        <div class="card-header bg-success text-white">New Customer</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Name</label>
+                    <input class="form-control" @bind="newCustomer.Name" placeholder="Full name" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" @bind="newCustomer.Email" placeholder="email@example.com" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Phone</label>
+                    <input class="form-control" @bind="newCustomer.Phone" placeholder="604-555-0100" />
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-success" @onclick="AddCustomer" disabled="@isSaving">
+                        @(isSaving ? "Saving..." : "Save Customer")
+                    </button>
+                </div>
+            </div>
+            @if (!string.IsNullOrEmpty(message))
+            {
+                <div class="alert @(success ? "alert-success" : "alert-danger") mt-3">@message</div>
+            }
+        </div>
+    </div>
+}
+
+@if (isLoading)
+{
+    <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+}
+else if (customers.Count == 0)
+{
+    <div class="alert alert-info">No customers found. Add one above!</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle">
+            <thead class="table-dark">
+                <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var c in customers)
+                {
+                    <tr>
+                        <td>@c.Id</td>
+                        <td>@c.Name</td>
+                        <td>@c.Email</td>
+                        <td>@c.Phone</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<Customer> customers = new();
+    private CreateCustomerRequest newCustomer = new();
+    private bool showForm = false;
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool success = false;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync() => await LoadCustomers();
+
+    private async Task LoadCustomers()
+    {
+        isLoading = true;
+        customers = await CustomerService.GetAllAsync();
+        isLoading = false;
+    }
+
+    private void ToggleForm() { showForm = !showForm; message = string.Empty; }
+
+    private async Task AddCustomer()
+    {
+        if (string.IsNullOrWhiteSpace(newCustomer.Name)) { message = "Name is required."; success = false; return; }
+        isSaving = true;
+        var ok = await CustomerService.CreateAsync(newCustomer);
+        if (ok) { message = "Customer added!"; success = true; newCustomer = new(); await LoadCustomers(); }
+        else { message = "Failed to add customer."; success = false; }
+        isSaving = false;
+    }
+}

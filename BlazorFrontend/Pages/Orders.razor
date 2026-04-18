@@ -1,0 +1,164 @@
+@page "/orders"
+@inject BlazorFrontend.Services.OrderService OrderService
+@inject BlazorFrontend.Services.CustomerService CustomerService
+@inject BlazorFrontend.Services.ProductService ProductService
+@using BlazorFrontend.Models
+
+<PageTitle>Orders</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>🧾 Orders</h2>
+    <button class="btn btn-success" @onclick="ToggleForm">
+        @(showForm ? "Cancel" : "+ Create Order")
+    </button>
+</div>
+
+@if (showForm)
+{
+    <div class="card mb-4 shadow-sm border-success">
+        <div class="card-header bg-success text-white">New Order</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Customer</label>
+                    <select class="form-select" @bind="newOrder.CustomerId">
+                        <option value="0">— Select customer —</option>
+                        @foreach (var c in customers)
+                        {
+                            <option value="@c.Id">[@c.Id] @c.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Product</label>
+                    <select class="form-select" @bind="selectedProductId" @bind:after="UpdateTotalPrice">
+                        <option value="0">— Select product —</option>
+                        @foreach (var p in products)
+                        {
+                            <option value="@p.Id">[@p.Id] @p.Name ($@p.Price.ToString("F2"))</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Quantity</label>
+                    <input type="number" class="form-control" @bind="newOrder.Quantity"
+                           @bind:after="UpdateTotalPrice" min="1" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Total Price</label>
+                    <input type="number" class="form-control" @bind="newOrder.TotalPrice"
+                           step="0.01" readonly />
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-success" @onclick="CreateOrder" disabled="@isSaving">
+                        @(isSaving ? "Placing..." : "Place Order")
+                    </button>
+                </div>
+            </div>
+            @if (!string.IsNullOrEmpty(message))
+            {
+                <div class="alert @(success ? "alert-success" : "alert-danger") mt-3">@message</div>
+            }
+        </div>
+    </div>
+}
+
+@if (isLoading)
+{
+    <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+}
+else if (orders.Count == 0)
+{
+    <div class="alert alert-info">No orders yet. Create one above!</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th><th>Customer ID</th><th>Product ID</th>
+                    <th>Qty</th><th>Total</th><th>Status</th><th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in orders)
+                {
+                    <tr>
+                        <td>@o.Id</td>
+                        <td>@o.CustomerId</td>
+                        <td>@o.ProductId</td>
+                        <td>@o.Quantity</td>
+                        <td>$@o.TotalPrice.ToString("F2")</td>
+                        <td>
+                            <span class="badge @StatusBadge(o.Status)">@o.Status</span>
+                        </td>
+                        <td>@o.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<Order> orders = new();
+    private List<Customer> customers = new();
+    private List<Product> products = new();
+    private CreateOrderRequest newOrder = new() { Quantity = 1 };
+    private int selectedProductId = 0;
+    private bool showForm = false;
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool success = false;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        var t1 = OrderService.GetAllAsync();
+        var t2 = CustomerService.GetAllAsync();
+        var t3 = ProductService.GetAllAsync();
+        await Task.WhenAll(t1, t2, t3);
+        orders = t1.Result;
+        customers = t2.Result;
+        products = t3.Result;
+        isLoading = false;
+    }
+
+    private void ToggleForm() { showForm = !showForm; message = string.Empty; }
+
+    private void UpdateTotalPrice()
+    {
+        newOrder.ProductId = selectedProductId;
+        var product = products.FirstOrDefault(p => p.Id == selectedProductId);
+        if (product != null && newOrder.Quantity > 0)
+            newOrder.TotalPrice = product.Price * newOrder.Quantity;
+    }
+
+    private async Task CreateOrder()
+    {
+        if (newOrder.CustomerId == 0) { message = "Please select a customer."; success = false; return; }
+        if (newOrder.ProductId == 0) { message = "Please select a product."; success = false; return; }
+        if (newOrder.Quantity < 1) { message = "Quantity must be at least 1."; success = false; return; }
+        isSaving = true;
+        var ok = await OrderService.CreateAsync(newOrder);
+        if (ok)
+        {
+            message = $"Order placed! Total: ${newOrder.TotalPrice:F2}";
+            success = true;
+            newOrder = new() { Quantity = 1 };
+            selectedProductId = 0;
+            orders = await OrderService.GetAllAsync();
+        }
+        else { message = "Failed to create order. Check that customer/product IDs exist."; success = false; }
+        isSaving = false;
+    }
+
+    private static string StatusBadge(string status) => status switch
+    {
+        "Completed" => "bg-success",
+        "Cancelled" => "bg-danger",
+        _ => "bg-warning text-dark"
+    };
+}

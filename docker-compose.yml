@@ -91,3 +91,13 @@ services:
       - productservice
       - orderservice
       - notificationservice
+
+  blazorfrontend:
+    container_name: blazorfrontend
+    build:
+      context: ./BlazorFrontend
+      dockerfile: Dockerfile
+    ports:
+      - "5005:80"
+    depends_on:
+      - apigateway

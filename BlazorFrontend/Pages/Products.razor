@@ -1,0 +1,132 @@
+@page "/products"
+@inject BlazorFrontend.Services.ProductService ProductService
+@using BlazorFrontend.Models
+
+<PageTitle>Products</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>📦 Products</h2>
+    <button class="btn btn-success" @onclick="ToggleForm">
+        @(showForm ? "Cancel" : "+ Add Product")
+    </button>
+</div>
+
+@if (showForm)
+{
+    <div class="card mb-4 shadow-sm border-success">
+        <div class="card-header bg-success text-white">New Product</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Name</label>
+                    <input class="form-control" @bind="newProduct.Name" placeholder="Product name" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Description</label>
+                    <input class="form-control" @bind="newProduct.Description" placeholder="Short description" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Price ($)</label>
+                    <input type="number" class="form-control" @bind="newProduct.Price" step="0.01" min="0" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Stock</label>
+                    <input type="number" class="form-control" @bind="newProduct.Stock" min="0" />
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button class="btn btn-success w-100" @onclick="AddProduct" disabled="@isSaving">
+                        @(isSaving ? "Saving..." : "Save Product")
+                    </button>
+                </div>
+            </div>
+            @if (!string.IsNullOrEmpty(message))
+            {
+                <div class="alert @(success ? "alert-success" : "alert-danger") mt-3">@message</div>
+            }
+        </div>
+    </div>
+}
+
+@if (isLoading)
+{
+    <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+}
+else if (products.Count == 0)
+{
+    <div class="alert alert-info">No products found. Add one above!</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th><th>Name</th><th>Description</th><th>Price</th><th>Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in products)
+                {
+                    <tr>
+                        <td>@p.Id</td>
+                        <td>@p.Name</td>
+                        <td>@p.Description</td>
+                        <td>$@p.Price.ToString("F2")</td>
+                        <td>
+                            <span class="badge @(p.Stock > 0 ? "bg-success" : "bg-danger")">@p.Stock</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<Product> products = new();
+    private CreateProductRequest newProduct = new();
+    private bool showForm = false;
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool success = false;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProducts();
+    }
+
+    private async Task LoadProducts()
+    {
+        isLoading = true;
+        products = await ProductService.GetAllAsync();
+        isLoading = false;
+    }
+
+    private void ToggleForm()
+    {
+        showForm = !showForm;
+        message = string.Empty;
+    }
+
+    private async Task AddProduct()
+    {
+        if (string.IsNullOrWhiteSpace(newProduct.Name)) { message = "Name is required."; success = false; return; }
+        isSaving = true;
+        message = string.Empty;
+        var ok = await ProductService.CreateAsync(newProduct);
+        if (ok)
+        {
+            message = "Product added successfully!";
+            success = true;
+            newProduct = new();
+            await LoadProducts();
+        }
+        else
+        {
+            message = "Failed to add product. Check gateway connection.";
+            success = false;
+        }
+        isSaving = false;
+    }
+}
