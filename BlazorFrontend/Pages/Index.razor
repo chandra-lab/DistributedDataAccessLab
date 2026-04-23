@@ -31,7 +31,7 @@
                     <p class="text-muted small mb-2">
                         This system extends an existing containerized e-commerce microservices backend
                         with a <strong>Blazor WebAssembly</strong> frontend. The frontend connects to four
-                        independent microservices through a single API Gateway — never calling services directly.
+                        independent microservices through a single API Gateway - never calling services directly.
                     </p>
                     <p class="text-muted small mb-0">
                         Orders trigger a <strong>RabbitMQ event</strong> that the NotificationService
@@ -51,7 +51,7 @@
                                 <span style="min-width:22px">@icon</span>
                                 <div>
                                     <span class="fw-semibold">@label</span>
-                                    <span class="text-muted"> — @desc</span>
+                                    <span class="text-muted"> - @desc</span>
                                 </div>
                             </div>
                         }
@@ -148,10 +148,10 @@
     private static readonly (string Icon, string Label, string Desc)[] ArchLayers =
     [
         ("🌐", "Blazor WASM",         "Browser SPA served by nginx on port 5005"),
-        ("🔀", "API Gateway (Ocelot)", "Single entry point — routes /api/* to services"),
-        ("📦", "ProductService",       "Manages catalog — SQLite, port 5003"),
-        ("👤", "CustomerService",      "Manages accounts — SQLite, port 5001"),
-        ("🧾", "OrderService",         "Processes orders — SQLite + RabbitMQ publish"),
+        ("🔀", "API Gateway (Ocelot)", "Single entry point - routes /api/* to services"),
+        ("📦", "ProductService",       "Manages catalog - SQLite, port 5003"),
+        ("👤", "CustomerService",      "Manages accounts - SQLite, port 5001"),
+        ("🧾", "OrderService",         "Processes orders - SQLite + RabbitMQ publish"),
         ("🔔", "NotificationService",  "Consumes OrderCreated events from RabbitMQ"),
     ];
 
