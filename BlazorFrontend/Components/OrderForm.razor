@@ -1,0 +1,99 @@
+@using BlazorFrontend.Models
+
+<!-- COMPONENT RULE: NO API calls. Lists loaded by parent page and passed in via [Parameter]. -->
+
+<div class="card mb-4 shadow-sm border-success">
+    <div class="card-header bg-success text-white fw-semibold">New Order</div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Customer</label>
+                <select class="form-select" @bind="model.CustomerId">
+                    <option value="0">— Select customer —</option>
+                    @foreach (var c in Customers)
+                    {
+                        <option value="@c.Id">[@c.Id] @c.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Product</label>
+                <select class="form-select" @bind="selectedProductId" @bind:after="RecalculateTotal">
+                    <option value="0">— Select product —</option>
+                    @foreach (var p in Products)
+                    {
+                        <option value="@p.Id">[@p.Id] @p.Name ($@p.Price.ToString("F2"))</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Quantity</label>
+                <input type="number" class="form-control" @bind="model.Quantity"
+                       @bind:after="RecalculateTotal" min="1" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Total ($)</label>
+                <input type="number" class="form-control" value="@model.TotalPrice" readonly />
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button class="btn btn-success" @onclick="HandleSubmit" disabled="@IsSaving">
+                    @(IsSaving ? "Placing..." : "Place Order")
+                </button>
+                <button class="btn btn-outline-secondary" @onclick="HandleCancel">Cancel</button>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger mt-3">@ErrorMessage</div>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Customer list loaded by the parent Orders page, passed down as a parameter.</summary>
+    [Parameter]
+    public List<Customer> Customers { get; set; } = new();
+
+    /// <summary>Product list loaded by the parent Orders page, passed down as a parameter.</summary>
+    [Parameter]
+    public List<Product> Products { get; set; } = new();
+
+    /// <summary>Called by the parent page to perform the actual API call.</summary>
+    [Parameter]
+    public EventCallback<CreateOrderRequest> OnSubmit { get; set; }
+
+    /// <summary>Called when the user clicks Cancel.</summary>
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    /// <summary>Set by the parent to disable the button while the API call is running.</summary>
+    [Parameter]
+    public bool IsSaving { get; set; }
+
+    private CreateOrderRequest model = new() { Quantity = 1 };
+    private int selectedProductId = 0;
+    private string ErrorMessage = string.Empty;
+
+    private void RecalculateTotal()
+    {
+        model.ProductId = selectedProductId;
+        var product = Products.FirstOrDefault(p => p.Id == selectedProductId);
+        if (product != null && model.Quantity > 0)
+            model.TotalPrice = product.Price * model.Quantity;
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (model.CustomerId == 0) { ErrorMessage = "Please select a customer."; return; }
+        if (model.ProductId == 0)  { ErrorMessage = "Please select a product."; return; }
+        if (model.Quantity < 1)    { ErrorMessage = "Quantity must be at least 1."; return; }
+        ErrorMessage = string.Empty;
+        // Hand off to parent page — this component does NOT call any API.
+        await OnSubmit.InvokeAsync(model);
+        model = new() { Quantity = 1 };
+        selectedProductId = 0;
+    }
+
+    private async Task HandleCancel() => await OnCancel.InvokeAsync();
+}

@@ -1,6 +1,7 @@
 @page "/customers"
 @inject BlazorFrontend.Services.CustomerService CustomerService
 @using BlazorFrontend.Models
+@using BlazorFrontend.Components
 
 <PageTitle>Customers</PageTitle>
 
@@ -11,36 +12,16 @@
     </button>
 </div>
 
+@* SMART LAYER delegates the form UI to the dumb CustomerForm component.
+   CustomerForm fires OnSubmit with the data; this page performs the API call. *@
 @if (showForm)
 {
-    <div class="card mb-4 shadow-sm border-success">
-        <div class="card-header bg-success text-white">New Customer</div>
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label">Name</label>
-                    <input class="form-control" @bind="newCustomer.Name" placeholder="Full name" />
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" @bind="newCustomer.Email" placeholder="email@example.com" />
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Phone</label>
-                    <input class="form-control" @bind="newCustomer.Phone" placeholder="604-555-0100" />
-                </div>
-                <div class="col-12">
-                    <button class="btn btn-success" @onclick="AddCustomer" disabled="@isSaving">
-                        @(isSaving ? "Saving..." : "Save Customer")
-                    </button>
-                </div>
-            </div>
-            @if (!string.IsNullOrEmpty(message))
-            {
-                <div class="alert @(success ? "alert-success" : "alert-danger") mt-3">@message</div>
-            }
-        </div>
-    </div>
+    <CustomerForm OnSubmit="HandleAddCustomer" OnCancel="ToggleForm" IsSaving="isSaving" />
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert @(success ? "alert-success" : "alert-danger") mb-3">@message</div>
 }
 
 @if (isLoading)
@@ -74,8 +55,9 @@ else
 }
 
 @code {
+    // SMART LAYER: manages state and performs API calls.
+    // The CustomerForm component only handles UI; it delegates submission here via EventCallback.
     private List<Customer> customers = new();
-    private CreateCustomerRequest newCustomer = new();
     private bool showForm = false;
     private bool isLoading = true;
     private bool isSaving = false;
@@ -93,13 +75,16 @@ else
 
     private void ToggleForm() { showForm = !showForm; message = string.Empty; }
 
-    private async Task AddCustomer()
+    /// <summary>
+    /// Invoked by the CustomerForm component via EventCallback.
+    /// This page is responsible for the actual API call.
+    /// </summary>
+    private async Task HandleAddCustomer(CreateCustomerRequest request)
     {
-        if (string.IsNullOrWhiteSpace(newCustomer.Name)) { message = "Name is required."; success = false; return; }
         isSaving = true;
-        var ok = await CustomerService.CreateAsync(newCustomer);
-        if (ok) { message = "Customer added!"; success = true; newCustomer = new(); await LoadCustomers(); }
-        else { message = "Failed to add customer."; success = false; }
+        var ok = await CustomerService.CreateAsync(request);
+        if (ok) { message = "Customer added successfully!"; success = true; showForm = false; await LoadCustomers(); }
+        else    { message = "Failed to add customer. Check gateway connection."; success = false; }
         isSaving = false;
     }
 }

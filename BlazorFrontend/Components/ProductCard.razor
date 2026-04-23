@@ -1,0 +1,26 @@
+@using BlazorFrontend.Models
+
+<!-- COMPONENT RULE: NO API calls, NO routing. Only UI rendering. Data via [Parameter]. -->
+
+<div class="card h-100 shadow-sm border-0">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <h6 class="card-title fw-bold mb-0">@Product.Name</h6>
+            <span class="badge @(Product.Stock > 0 ? "bg-success" : "bg-danger")">
+                @(Product.Stock > 0 ? $"{Product.Stock} in stock" : "Out of stock")
+            </span>
+        </div>
+        <p class="card-text text-muted small mb-2">@Product.Description</p>
+        <p class="card-text fw-bold text-primary">$@Product.Price.ToString("F2")</p>
+        <small class="text-muted">ID: @Product.Id</small>
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// The product to display. Set by the parent page (smart layer).
+    /// This component never calls any API — it only renders what it receives.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public Product Product { get; set; } = new();
+}

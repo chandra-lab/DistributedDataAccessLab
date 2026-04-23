@@ -1,0 +1,66 @@
+@using BlazorFrontend.Models
+
+<!-- COMPONENT RULE: NO API calls. Receives callbacks via [Parameter]. Parent page handles submission. -->
+
+<div class="card mb-4 shadow-sm border-success">
+    <div class="card-header bg-success text-white fw-semibold">New Customer</div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Name</label>
+                <input class="form-control" @bind="model.Name" placeholder="Full name" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" @bind="model.Email" placeholder="email@example.com" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Phone</label>
+                <input class="form-control" @bind="model.Phone" placeholder="604-555-0100" />
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button class="btn btn-success" @onclick="HandleSubmit" disabled="@IsSaving">
+                    @(IsSaving ? "Saving..." : "Save Customer")
+                </button>
+                <button class="btn btn-outline-secondary" @onclick="HandleCancel">Cancel</button>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger mt-3">@ErrorMessage</div>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Called by the parent page when the form is submitted successfully.</summary>
+    [Parameter]
+    public EventCallback<CreateCustomerRequest> OnSubmit { get; set; }
+
+    /// <summary>Called when the user clicks Cancel.</summary>
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    /// <summary>Set by the parent to show a loading spinner while the API call is in progress.</summary>
+    [Parameter]
+    public bool IsSaving { get; set; }
+
+    private CreateCustomerRequest model = new();
+    private string ErrorMessage = string.Empty;
+
+    private async Task HandleSubmit()
+    {
+        if (string.IsNullOrWhiteSpace(model.Name))
+        {
+            ErrorMessage = "Name is required.";
+            return;
+        }
+        ErrorMessage = string.Empty;
+        // Hand off to parent page — this component does NOT call any API.
+        await OnSubmit.InvokeAsync(model);
+        model = new(); // reset form
+    }
+
+    private async Task HandleCancel() => await OnCancel.InvokeAsync();
+}
