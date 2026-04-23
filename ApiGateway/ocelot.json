@@ -2,12 +2,32 @@
   "Routes": [
     {
       "SwaggerKey": "customerservice",
+      "UpstreamPathTemplate": "/api/customers",
+      "UpstreamHttpMethod": [ "GET", "POST" ],
+      "DownstreamPathTemplate": "/api/customers",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "customerservice", "Port": 8080 }
+      ]
+    },
+    {
+      "SwaggerKey": "customerservice",
       "UpstreamPathTemplate": "/api/customers/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "DownstreamPathTemplate": "/api/customers/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         { "Host": "customerservice", "Port": 8080 }
+      ]
+    },
+    {
+      "SwaggerKey": "productservice",
+      "UpstreamPathTemplate": "/api/products",
+      "UpstreamHttpMethod": [ "GET", "POST" ],
+      "DownstreamPathTemplate": "/api/products",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "productservice", "Port": 8080 }
       ]
     },
     {
@@ -22,12 +42,32 @@
     },
     {
       "SwaggerKey": "orderservice",
+      "UpstreamPathTemplate": "/api/orders",
+      "UpstreamHttpMethod": [ "GET", "POST" ],
+      "DownstreamPathTemplate": "/api/orders",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "orderservice", "Port": 8080 }
+      ]
+    },
+    {
+      "SwaggerKey": "orderservice",
       "UpstreamPathTemplate": "/api/orders/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "DownstreamPathTemplate": "/api/orders/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         { "Host": "orderservice", "Port": 8080 }
+      ]
+    },
+    {
+      "SwaggerKey": "notificationservice",
+      "UpstreamPathTemplate": "/api/notifications",
+      "UpstreamHttpMethod": [ "GET", "POST" ],
+      "DownstreamPathTemplate": "/api/notifications",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "notificationservice", "Port": 8080 }
       ]
     },
     {
