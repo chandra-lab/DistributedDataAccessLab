@@ -23,9 +23,3 @@ builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<OrderService>();
 
 await builder.Build().RunAsync();
-
-builder.Services.AddScoped<ProductService>();
-builder.Services.AddScoped<CustomerService>();
-builder.Services.AddScoped<OrderService>();
-
-await builder.Build().RunAsync();
