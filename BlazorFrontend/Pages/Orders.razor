@@ -8,7 +8,7 @@
 <PageTitle>Orders</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>🧾 Orders</h2>
+    <h2>Orders</h2>
     <button class="btn btn-success" @onclick="ToggleForm">
         @(showForm ? "Cancel" : "+ Create Order")
     </button>
@@ -68,7 +68,7 @@ else
 
 @code {
     // SMART LAYER: loads all data needed by the OrderForm component and manages API calls.
-    // The OrderForm component is dumb — it only renders UI and fires callbacks.
+    // The OrderForm component is dumb - it only renders UI and fires callbacks.
     private List<Order> orders = new();
     private List<Customer> customers = new();
     private List<Product> products = new();
@@ -81,7 +81,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
-        // Load all three lists concurrently — OrderForm needs customers + products for dropdowns
+        // Load all three lists concurrently - OrderForm needs customers + products for dropdowns
         var t1 = OrderService.GetAllAsync();
         var t2 = CustomerService.GetAllAsync();
         var t3 = ProductService.GetAllAsync();

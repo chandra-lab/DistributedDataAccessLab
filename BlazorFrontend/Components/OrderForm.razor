@@ -9,7 +9,7 @@
             <div class="col-md-4">
                 <label class="form-label">Customer</label>
                 <select class="form-select" @bind="model.CustomerId">
-                    <option value="0">— Select customer —</option>
+                    <option value="0">- Select customer -</option>
                     @foreach (var c in Customers)
                     {
                         <option value="@c.Id">[@c.Id] @c.Name</option>
@@ -19,7 +19,7 @@
             <div class="col-md-4">
                 <label class="form-label">Product</label>
                 <select class="form-select" @bind="selectedProductId" @bind:after="RecalculateTotal">
-                    <option value="0">— Select product —</option>
+                    <option value="0">- Select product -</option>
                     @foreach (var p in Products)
                     {
                         <option value="@p.Id">[@p.Id] @p.Name ($@p.Price.ToString("F2"))</option>
@@ -89,7 +89,7 @@
         if (model.ProductId == 0)  { ErrorMessage = "Please select a product."; return; }
         if (model.Quantity < 1)    { ErrorMessage = "Quantity must be at least 1."; return; }
         ErrorMessage = string.Empty;
-        // Hand off to parent page — this component does NOT call any API.
+        // Hand off to parent page - this component does NOT call any API.
         await OnSubmit.InvokeAsync(model);
         model = new() { Quantity = 1 };
         selectedProductId = 0;

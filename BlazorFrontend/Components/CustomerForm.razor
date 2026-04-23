@@ -57,7 +57,7 @@
             return;
         }
         ErrorMessage = string.Empty;
-        // Hand off to parent page — this component does NOT call any API.
+        // Hand off to parent page - this component does NOT call any API.
         await OnSubmit.InvokeAsync(model);
         model = new(); // reset form
     }

@@ -1,40 +1,31 @@
 @page "/"
 <PageTitle>E-Commerce Admin</PageTitle>
 
-<div class="text-center py-4">
-    <h1 class="display-5 fw-bold">E-Commerce Microservices</h1>
-    <p class="lead text-muted">Manage products, customers, and orders via the API Gateway.</p>
+<div class="hero">
+    <div class="hero-badge">[*] Microservices Platform</div>
+    <h1>Manage your <span>store</span><br/>in one place.</h1>
+    <p>View and manage products, customers, and orders - all routed through the API Gateway.</p>
 </div>
 
-<div class="row g-4 justify-content-center mt-2">
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100 border-0">
-            <div class="card-body text-center">
-                <div class="fs-1 mb-2">📦</div>
-                <h5 class="card-title">Products</h5>
-                <p class="card-text text-muted">View and add products to the catalog.</p>
-                <a href="/products" class="btn btn-primary">Go to Products</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100 border-0">
-            <div class="card-body text-center">
-                <div class="fs-1 mb-2">👤</div>
-                <h5 class="card-title">Customers</h5>
-                <p class="card-text text-muted">View and register new customers.</p>
-                <a href="/customers" class="btn btn-primary">Go to Customers</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100 border-0">
-            <div class="card-body text-center">
-                <div class="fs-1 mb-2">🧾</div>
-                <h5 class="card-title">Orders</h5>
-                <p class="card-text text-muted">Place and review customer orders.</p>
-                <a href="/orders" class="btn btn-primary">Go to Orders</a>
-            </div>
-        </div>
-    </div>
+<div class="feature-grid">
+    <a href="/products" class="feature-card blue">
+        <div class="feature-card-icon">[P]</div>
+        <h3>Products</h3>
+        <p>Browse the catalog and add new products with pricing and stock levels.</p>
+        <div class="card-cta">Go to Products -></div>
+    </a>
+
+    <a href="/customers" class="feature-card purple">
+        <div class="feature-card-icon">[C]</div>
+        <h3>Customers</h3>
+        <p>View registered customers and onboard new ones with a single form.</p>
+        <div class="card-cta">Go to Customers -></div>
+    </a>
+
+    <a href="/orders" class="feature-card teal">
+        <div class="feature-card-icon">[O]</div>
+        <h3>Orders</h3>
+        <p>Place new orders, track status, and watch RabbitMQ events fire in real time.</p>
+        <div class="card-cta">Go to Orders -></div>
+    </a>
 </div>

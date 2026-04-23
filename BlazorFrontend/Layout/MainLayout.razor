@@ -1,24 +1,25 @@
 @inherits LayoutComponentBase
 
-<div class="d-flex flex-column min-vh-100">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/">🛒 E-Commerce Admin</a>
-            <div class="navbar-nav ms-auto">
-                <NavLink class="nav-link text-white" href="/" Match="NavLinkMatch.All">Home</NavLink>
-                <NavLink class="nav-link text-white" href="/dashboard">Dashboard</NavLink>
-                <NavLink class="nav-link text-white" href="/products">Products</NavLink>
-                <NavLink class="nav-link text-white" href="/customers">Customers</NavLink>
-                <NavLink class="nav-link text-white" href="/orders">Orders</NavLink>
-            </div>
+<div class="page-shell">
+    <nav class="admin-nav">
+        <a class="brand" href="/">
+            <div class="brand-icon">[EC]</div>
+            E-Commerce Admin
+        </a>
+        <div class="nav-links">
+            <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
+            <NavLink href="/dashboard">Dashboard</NavLink>
+            <NavLink href="/products">Products</NavLink>
+            <NavLink href="/customers">Customers</NavLink>
+            <NavLink href="/orders">Orders</NavLink>
         </div>
     </nav>
 
-    <main class="container flex-grow-1">
+    <div class="page-content">
         @Body
-    </main>
+    </div>
 
-    <footer class="bg-light text-center text-muted py-3 mt-4">
-        <small>E-Commerce Microservices — Programming for the Internet</small>
+    <footer class="admin-footer">
+        E-Commerce Microservices - Programming for the Internet - CSCI 6844
     </footer>
 </div>

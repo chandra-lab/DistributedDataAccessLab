@@ -8,7 +8,7 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // If ApiGatewayUrl is set in appsettings.json, use it.
-// Otherwise fall back to the app's own origin — nginx will proxy /api/ to the gateway.
+// Otherwise fall back to the app's own origin - nginx will proxy /api/ to the gateway.
 // This makes the app work in GitHub Codespaces, local Docker, or anywhere else
 // without needing to know the dynamic host URL at build time.
 var gatewayUrl = builder.Configuration["ApiGatewayUrl"];
