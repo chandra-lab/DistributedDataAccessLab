@@ -5,15 +5,13 @@
 
 <PageTitle>Customers</PageTitle>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>👤 Customers</h2>
+<div class="page-header">
+    <h2>Customers</h2>
     <button class="btn btn-success" @onclick="ToggleForm">
         @(showForm ? "Cancel" : "+ Add Customer")
     </button>
 </div>
 
-@* SMART LAYER delegates the form UI to the dumb CustomerForm component.
-   CustomerForm fires OnSubmit with the data; this page performs the API call. *@
 @if (showForm)
 {
     <CustomerForm OnSubmit="HandleAddCustomer" OnCancel="ToggleForm" IsSaving="isSaving" />
@@ -27,6 +25,10 @@
 @if (isLoading)
 {
     <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+}
+else if (!string.IsNullOrEmpty(loadError))
+{
+    <div class="alert alert-warning">@loadError</div>
 }
 else if (customers.Count == 0)
 {
@@ -42,12 +44,7 @@ else
             <tbody>
                 @foreach (var c in customers)
                 {
-                    <tr>
-                        <td>@c.Id</td>
-                        <td>@c.Name</td>
-                        <td>@c.Email</td>
-                        <td>@c.Phone</td>
-                    </tr>
+                    <tr><td>@c.Id</td><td>@c.Name</td><td>@c.Email</td><td>@c.Phone</td></tr>
                 }
             </tbody>
         </table>
@@ -55,36 +52,33 @@ else
 }
 
 @code {
-    // SMART LAYER: manages state and performs API calls.
-    // The CustomerForm component only handles UI; it delegates submission here via EventCallback.
     private List<Customer> customers = new();
-    private bool showForm = false;
-    private bool isLoading = true;
-    private bool isSaving = false;
-    private bool success = false;
+    private bool showForm, isLoading = true, isSaving, success;
     private string message = string.Empty;
+    private string loadError = string.Empty;
 
     protected override async Task OnInitializedAsync() => await LoadCustomers();
 
     private async Task LoadCustomers()
     {
-        isLoading = true;
-        customers = await CustomerService.GetAllAsync();
+        isLoading = true; loadError = string.Empty;
+        try { customers = await CustomerService.GetAllAsync(); }
+        catch (Exception ex) { loadError = $"Could not load customers: {ex.Message}"; }
         isLoading = false;
     }
 
     private void ToggleForm() { showForm = !showForm; message = string.Empty; }
 
-    /// <summary>
-    /// Invoked by the CustomerForm component via EventCallback.
-    /// This page is responsible for the actual API call.
-    /// </summary>
     private async Task HandleAddCustomer(CreateCustomerRequest request)
     {
         isSaving = true;
-        var ok = await CustomerService.CreateAsync(request);
-        if (ok) { message = "Customer added successfully!"; success = true; showForm = false; await LoadCustomers(); }
-        else    { message = "Failed to add customer. Check gateway connection."; success = false; }
+        try
+        {
+            var ok = await CustomerService.CreateAsync(request);
+            if (ok) { message = "Customer added!"; success = true; showForm = false; await LoadCustomers(); }
+            else { message = "Failed to add customer."; success = false; }
+        }
+        catch (Exception ex) { message = $"Error: {ex.Message}"; success = false; }
         isSaving = false;
     }
 }

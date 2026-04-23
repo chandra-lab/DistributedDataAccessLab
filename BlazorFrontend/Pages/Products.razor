@@ -5,7 +5,7 @@
 
 <PageTitle>Products</PageTitle>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="page-header">
     <h2>Products</h2>
     <button class="btn btn-success" @onclick="ToggleForm">
         @(showForm ? "Cancel" : "+ Add Product")
@@ -14,7 +14,7 @@
 
 @if (showForm)
 {
-    <div class="card mb-4 shadow-sm border-success">
+    <div class="card mb-4">
         <div class="card-header bg-success text-white fw-semibold">New Product</div>
         <div class="card-body">
             <div class="row g-3">
@@ -52,13 +52,16 @@
 {
     <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
 }
+else if (!string.IsNullOrEmpty(loadError))
+{
+    <div class="alert alert-warning">@loadError</div>
+}
 else if (products.Count == 0)
 {
     <div class="alert alert-info">No products found. Add one above!</div>
 }
 else
 {
-    @* SMART LAYER: fetches data, then passes each product into the dumb ProductCard component *@
     <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var p in products)
         {
@@ -70,21 +73,20 @@ else
 }
 
 @code {
-    // SMART LAYER: manages state, calls API, feeds data down to dumb components.
     private List<Product> products = new();
     private CreateProductRequest newProduct = new();
-    private bool showForm = false;
-    private bool isLoading = true;
-    private bool isSaving = false;
-    private bool success = false;
+    private bool showForm, isLoading = true, isSaving, success;
     private string message = string.Empty;
+    private string loadError = string.Empty;
 
     protected override async Task OnInitializedAsync() => await LoadProducts();
 
     private async Task LoadProducts()
     {
         isLoading = true;
-        products = await ProductService.GetAllAsync();
+        loadError = string.Empty;
+        try { products = await ProductService.GetAllAsync(); }
+        catch (Exception ex) { loadError = $"Could not load products: {ex.Message}"; }
         isLoading = false;
     }
 
@@ -93,11 +95,14 @@ else
     private async Task AddProduct()
     {
         if (string.IsNullOrWhiteSpace(newProduct.Name)) { message = "Name is required."; success = false; return; }
-        isSaving = true;
-        message = string.Empty;
-        var ok = await ProductService.CreateAsync(newProduct);
-        if (ok) { message = "Product added!"; success = true; newProduct = new(); showForm = false; await LoadProducts(); }
-        else { message = "Failed to add product. Check gateway connection."; success = false; }
+        isSaving = true; message = string.Empty;
+        try
+        {
+            var ok = await ProductService.CreateAsync(newProduct);
+            if (ok) { message = "Product added!"; success = true; newProduct = new(); showForm = false; await LoadProducts(); }
+            else { message = "Failed to add product."; success = false; }
+        }
+        catch (Exception ex) { message = $"Error: {ex.Message}"; success = false; }
         isSaving = false;
     }
 }

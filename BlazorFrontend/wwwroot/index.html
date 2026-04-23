@@ -5,25 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>E-Commerce Admin</title>
     <base href="/" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <!-- Local Bootstrap - no CDN dependency, works in Codespaces and offline -->
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
     <div id="app">
-        <div class="splash-screen">
-            <div class="splash-inner">
-                <div class="splash-icon">[EC]</div>
-                <div class="splash-title">E-Commerce Admin</div>
-                <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+        <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0f172a;">
+            <div style="text-align:center;color:#fff;">
+                <div style="font-size:2rem;margin-bottom:1rem;">[EC]</div>
+                <div style="font-size:1.1rem;font-weight:600;margin-bottom:1.5rem;">E-Commerce Admin</div>
+                <div style="width:180px;height:3px;background:rgba(255,255,255,.15);border-radius:99px;margin:0 auto;overflow:hidden;">
+                    <div style="height:100%;width:40%;background:#3b82f6;border-radius:99px;animation:slide 1.2s ease-in-out infinite;"></div>
+                </div>
+                <style>@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(600%)}}</style>
             </div>
         </div>
     </div>
 
-    <div id="blazor-error-ui" class="blazor-error-banner">
-        An unhandled error has occurred. &nbsp;
+    <div id="blazor-error-ui" style="display:none;" class="alert alert-danger m-3 fixed-bottom">
+        An unhandled error has occurred.
         <a href="" class="alert-link">Reload</a>
     </div>
 

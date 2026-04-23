@@ -7,22 +7,17 @@
 
 <PageTitle>Orders</PageTitle>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="page-header">
     <h2>Orders</h2>
     <button class="btn btn-success" @onclick="ToggleForm">
         @(showForm ? "Cancel" : "+ Create Order")
     </button>
 </div>
 
-@* SMART LAYER passes pre-loaded Customers and Products lists into the dumb OrderForm component.
-   OrderForm fires OnSubmit with the request data; this page performs the API call. *@
 @if (showForm)
 {
-    <OrderForm Customers="customers"
-               Products="products"
-               OnSubmit="HandleCreateOrder"
-               OnCancel="ToggleForm"
-               IsSaving="isSaving" />
+    <OrderForm Customers="customers" Products="products"
+               OnSubmit="HandleCreateOrder" OnCancel="ToggleForm" IsSaving="isSaving" />
 }
 
 @if (!string.IsNullOrEmpty(message))
@@ -34,6 +29,10 @@
 {
     <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
 }
+else if (!string.IsNullOrEmpty(loadError))
+{
+    <div class="alert alert-warning">@loadError</div>
+}
 else if (orders.Count == 0)
 {
     <div class="alert alert-info">No orders yet. Create one above!</div>
@@ -43,20 +42,14 @@ else
     <div class="table-responsive">
         <table class="table table-hover table-bordered align-middle">
             <thead class="table-dark">
-                <tr>
-                    <th>ID</th><th>Customer ID</th><th>Product ID</th>
-                    <th>Qty</th><th>Total</th><th>Status</th><th>Created</th>
-                </tr>
+                <tr><th>ID</th><th>Customer ID</th><th>Product ID</th><th>Qty</th><th>Total</th><th>Status</th><th>Created</th></tr>
             </thead>
             <tbody>
                 @foreach (var o in orders)
                 {
                     <tr>
-                        <td>@o.Id</td>
-                        <td>@o.CustomerId</td>
-                        <td>@o.ProductId</td>
-                        <td>@o.Quantity</td>
-                        <td>$@o.TotalPrice.ToString("F2")</td>
+                        <td>@o.Id</td><td>@o.CustomerId</td><td>@o.ProductId</td>
+                        <td>@o.Quantity</td><td>$@o.TotalPrice.ToString("F2")</td>
                         <td><span class="badge @StatusBadge(o.Status)">@o.Status</span></td>
                         <td>@o.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
                     </tr>
@@ -67,53 +60,40 @@ else
 }
 
 @code {
-    // SMART LAYER: loads all data needed by the OrderForm component and manages API calls.
-    // The OrderForm component is dumb - it only renders UI and fires callbacks.
     private List<Order> orders = new();
     private List<Customer> customers = new();
     private List<Product> products = new();
-    private bool showForm = false;
-    private bool isLoading = true;
-    private bool isSaving = false;
-    private bool success = false;
+    private bool showForm, isLoading = true, isSaving, success;
     private string message = string.Empty;
+    private string loadError = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        isLoading = true;
-        // Load all three lists concurrently - OrderForm needs customers + products for dropdowns
-        var t1 = OrderService.GetAllAsync();
-        var t2 = CustomerService.GetAllAsync();
-        var t3 = ProductService.GetAllAsync();
-        await Task.WhenAll(t1, t2, t3);
-        orders = t1.Result;
-        customers = t2.Result;
-        products = t3.Result;
+        isLoading = true; loadError = string.Empty;
+        try
+        {
+            var t1 = OrderService.GetAllAsync();
+            var t2 = CustomerService.GetAllAsync();
+            var t3 = ProductService.GetAllAsync();
+            await Task.WhenAll(t1, t2, t3);
+            orders = t1.Result; customers = t2.Result; products = t3.Result;
+        }
+        catch (Exception ex) { loadError = $"Could not load data: {ex.Message}"; }
         isLoading = false;
     }
 
     private void ToggleForm() { showForm = !showForm; message = string.Empty; }
 
-    /// <summary>
-    /// Invoked by the OrderForm component via EventCallback.
-    /// This page is responsible for the actual API call.
-    /// </summary>
     private async Task HandleCreateOrder(CreateOrderRequest request)
     {
         isSaving = true;
-        var ok = await OrderService.CreateAsync(request);
-        if (ok)
+        try
         {
-            message = $"Order placed! Total: ${request.TotalPrice:F2}";
-            success = true;
-            showForm = false;
-            orders = await OrderService.GetAllAsync();
+            var ok = await OrderService.CreateAsync(request);
+            if (ok) { message = $"Order placed! Total: ${request.TotalPrice:F2}"; success = true; showForm = false; orders = await OrderService.GetAllAsync(); }
+            else { message = "Failed to create order."; success = false; }
         }
-        else
-        {
-            message = "Failed to create order. Ensure the customer and product IDs exist.";
-            success = false;
-        }
+        catch (Exception ex) { message = $"Error: {ex.Message}"; success = false; }
         isSaving = false;
     }
 
