@@ -1,25 +1,22 @@
 @inherits LayoutComponentBase
 
-<div class="page-shell">
-    <nav class="admin-nav">
-        <a class="brand" href="/">
-            <div class="brand-icon">[EC]</div>
-            E-Commerce Admin
-        </a>
-        <div class="nav-links">
-            <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
-            <NavLink href="/dashboard">Dashboard</NavLink>
-            <NavLink href="/products">Products</NavLink>
-            <NavLink href="/customers">Customers</NavLink>
-            <NavLink href="/orders">Orders</NavLink>
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#0f172a">
+    <div class="container-xl">
+        <a class="navbar-brand" href="/"><span>[EC] E-Commerce Admin</span></a>
+        <div class="navbar-nav ms-auto flex-row gap-2">
+            <NavLink class="nav-link px-2" href="/" Match="NavLinkMatch.All">Home</NavLink>
+            <NavLink class="nav-link px-2" href="/dashboard">Dashboard</NavLink>
+            <NavLink class="nav-link px-2" href="/products">Products</NavLink>
+            <NavLink class="nav-link px-2" href="/customers">Customers</NavLink>
+            <NavLink class="nav-link px-2" href="/orders">Orders</NavLink>
         </div>
-    </nav>
-
-    <div class="page-content">
-        @Body
     </div>
+</nav>
 
-    <footer class="admin-footer">
-        E-Commerce Microservices - Programming for the Internet - CSCI 6844
-    </footer>
+<div class="container-xl py-4" style="min-height:calc(100vh - 130px)">
+    @Body
 </div>
+
+<footer class="border-top bg-white text-center py-3 mt-4">
+    <small class="text-muted">E-Commerce Microservices - Programming for the Internet - CSCI 6844</small>
+</footer>
