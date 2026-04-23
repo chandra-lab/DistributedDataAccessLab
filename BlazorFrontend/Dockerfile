@@ -6,7 +6,12 @@ COPY *.csproj ./
 RUN dotnet restore
 
 COPY . ./
-RUN dotnet publish -c Release -o /app/publish
+
+# BlazorEnableCompression=false ensures all _framework/ files are present
+# as plain uncompressed files that nginx can serve directly.
+# Without this flag, dotnet publish only outputs .br/.gz compressed versions
+# and nginx returns index.html as a fallback for every missing file.
+RUN dotnet publish -c Release -o /app/publish -p:BlazorEnableCompression=false
 
 # Stage 2: Serve with nginx
 FROM nginx:alpine AS final
