@@ -7,12 +7,24 @@
 
 <PageTitle>Orders</PageTitle>
 
-<div class="page-header">
-    <h2>Orders</h2>
-    <button class="btn btn-success" @onclick="ToggleForm">
-        @(showForm ? "Cancel" : "+ Create Order")
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0" style="color:#0f172a">🧾 Orders</h2>
+        <p class="text-muted small mb-0">Place and track customer orders</p>
+    </div>
+    <button class="btn @(showForm ? "btn-outline-secondary" : "btn-primary") px-4" @onclick="ToggleForm">
+        @(showForm ? "✕ Cancel" : "+ Create Order")
     </button>
 </div>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert @(success ? "alert-success" : "alert-danger") alert-dismissible d-flex align-items-center gap-2 mb-4">
+        <span>@(success ? "✅" : "❌")</span>
+        <span>@message</span>
+        <button type="button" class="btn-close ms-auto" @onclick="() => message = string.Empty"></button>
+    </div>
+}
 
 @if (showForm)
 {
@@ -20,42 +32,79 @@
                OnSubmit="HandleCreateOrder" OnCancel="ToggleForm" IsSaving="isSaving" />
 }
 
-@if (!string.IsNullOrEmpty(message))
-{
-    <div class="alert @(success ? "alert-success" : "alert-danger") mb-3">@message</div>
-}
-
 @if (isLoading)
 {
-    <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+    <div class="text-center py-5">
+        <div class="spinner-border text-primary mb-2"></div>
+        <p class="text-muted">Loading orders...</p>
+    </div>
 }
 else if (!string.IsNullOrEmpty(loadError))
 {
-    <div class="alert alert-warning">@loadError</div>
+    <div class="alert alert-warning d-flex align-items-center gap-2">
+        <span>⚠️</span><span>@loadError</span>
+    </div>
 }
 else if (orders.Count == 0)
 {
-    <div class="alert alert-info">No orders yet. Create one above!</div>
+    <div class="text-center py-5 text-muted">
+        <div style="font-size:3rem">🧾</div>
+        <h5 class="mt-3">No orders yet</h5>
+        <p class="small">Click <strong>+ Create Order</strong> to place your first order.</p>
+    </div>
 }
 else
 {
-    <div class="table-responsive">
-        <table class="table table-hover table-bordered align-middle">
-            <thead class="table-dark">
-                <tr><th>ID</th><th>Customer ID</th><th>Product ID</th><th>Qty</th><th>Total</th><th>Status</th><th>Created</th></tr>
-            </thead>
-            <tbody>
-                @foreach (var o in orders)
-                {
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-0 d-flex justify-content-between align-items-center py-3" style="background:#f8fafc">
+            <span class="fw-semibold text-muted small">@orders.Count order@(orders.Count == 1 ? "" : "s") total</span>
+            <span class="fw-bold text-success small">
+                Total revenue: $@orders.Sum(o => o.TotalPrice).ToString("F2")
+            </span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background:#f1f5f9">
                     <tr>
-                        <td>@o.Id</td><td>@o.CustomerId</td><td>@o.ProductId</td>
-                        <td>@o.Quantity</td><td>$@o.TotalPrice.ToString("F2")</td>
-                        <td><span class="badge @StatusBadge(o.Status)">@o.Status</span></td>
-                        <td>@o.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                        <th class="ps-4 text-muted small fw-semibold" style="width:60px">#</th>
+                        <th class="text-muted small fw-semibold">Customer</th>
+                        <th class="text-muted small fw-semibold">Product</th>
+                        <th class="text-muted small fw-semibold text-center">Qty</th>
+                        <th class="text-muted small fw-semibold">Total</th>
+                        <th class="text-muted small fw-semibold">Status</th>
+                        <th class="text-muted small fw-semibold pe-4">Date</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var o in orders)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <span class="badge bg-light text-muted border">@o.Id</span>
+                            </td>
+                            <td>
+                                <span class="fw-semibold">
+                                    @(customers.FirstOrDefault(c => c.Id == o.CustomerId)?.Name ?? $"Customer #{o.CustomerId}")
+                                </span>
+                            </td>
+                            <td class="text-muted">
+                                @(products.FirstOrDefault(p => p.Id == o.ProductId)?.Name ?? $"Product #{o.ProductId}")
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark border">@o.Quantity</span>
+                            </td>
+                            <td class="fw-bold text-success">$@o.TotalPrice.ToString("F2")</td>
+                            <td>
+                                <span class="badge @StatusBadge(o.Status) rounded-pill px-3">@o.Status</span>
+                            </td>
+                            <td class="pe-4 text-muted small">
+                                @o.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy HH:mm")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 }
 
@@ -90,8 +139,14 @@ else
         try
         {
             var ok = await OrderService.CreateAsync(request);
-            if (ok) { message = $"Order placed! Total: ${request.TotalPrice:F2}"; success = true; showForm = false; orders = await OrderService.GetAllAsync(); }
-            else { message = "Failed to create order."; success = false; }
+            if (ok)
+            {
+                var prod = products.FirstOrDefault(p => p.Id == request.ProductId)?.Name ?? "item";
+                message = $"Order placed for '{prod}' — Total: ${request.TotalPrice:F2} ✅";
+                success = true; showForm = false;
+                orders = await OrderService.GetAllAsync();
+            }
+            else { message = "Failed to create order. Please try again."; success = false; }
         }
         catch (Exception ex) { message = $"Error: {ex.Message}"; success = false; }
         isSaving = false;
