@@ -37,11 +37,11 @@
 </div>
 
 @code {
-    [Parameter] public EventCallback<CreateCustomerRequest> OnSubmit { get; set; }
+    [Parameter] public EventCallback<CreateCustomerDto> OnSubmit { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
     [Parameter] public bool IsSaving { get; set; }
 
-    private CreateCustomerRequest model = new();
+    private CreateCustomerDto model = new();
     private string ErrorMessage = string.Empty;
 
     private async Task HandleSubmit()

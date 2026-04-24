@@ -9,10 +9,10 @@ public class CustomerService
 
     public CustomerService(HttpClient http) => _http = http;
 
-    public async Task<List<Customer>> GetAllAsync()
-        => await _http.GetFromJsonAsync<List<Customer>>("api/customers") ?? new();
+    public async Task<List<CustomerDto>> GetAllAsync()
+        => await _http.GetFromJsonAsync<List<CustomerDto>>("api/customers") ?? new();
 
-    public async Task<bool> CreateAsync(CreateCustomerRequest request)
+    public async Task<bool> CreateAsync(CreateCustomerDto request)
     {
         var response = await _http.PostAsJsonAsync("api/customers", request);
         return response.IsSuccessStatusCode;

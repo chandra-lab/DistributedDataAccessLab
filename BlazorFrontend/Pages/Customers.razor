@@ -93,7 +93,7 @@ else
 }
 
 @code {
-    private List<Customer> customers = new();
+    private List<CustomerDto> customers = new();
     private bool showForm, isLoading = true, isSaving, success;
     private string message = string.Empty;
     private string loadError = string.Empty;
@@ -110,7 +110,7 @@ else
 
     private void ToggleForm() { showForm = !showForm; message = string.Empty; }
 
-    private async Task HandleAddCustomer(CreateCustomerRequest request)
+    private async Task HandleAddCustomer(CreateCustomerDto request)
     {
         isSaving = true;
         try

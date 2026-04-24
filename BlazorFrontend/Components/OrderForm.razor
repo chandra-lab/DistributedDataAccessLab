@@ -57,13 +57,13 @@
 </div>
 
 @code {
-    [Parameter] public List<Customer> Customers { get; set; } = new();
-    [Parameter] public List<Product> Products { get; set; } = new();
-    [Parameter] public EventCallback<CreateOrderRequest> OnSubmit { get; set; }
+    [Parameter] public List<CustomerDto> Customers { get; set; } = new();
+    [Parameter] public List<ProductDto> Products { get; set; } = new();
+    [Parameter] public EventCallback<CreateOrderDto> OnSubmit { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
     [Parameter] public bool IsSaving { get; set; }
 
-    private CreateOrderRequest model = new() { Quantity = 1 };
+    private CreateOrderDto model = new() { Quantity = 1 };
     private int selectedProductId = 0;
     private string ErrorMessage = string.Empty;
 

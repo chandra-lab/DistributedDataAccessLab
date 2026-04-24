@@ -109,11 +109,11 @@ else
 }
 
 @code {
-    private List<Order> orders = new();
-    private List<Customer> customers = new();
-    private List<Product> products = new();
+    private List<OrderDto>    orders    = new();
+    private List<CustomerDto> customers = new();
+    private List<ProductDto>  products  = new();
     private bool showForm, isLoading = true, isSaving, success;
-    private string message = string.Empty;
+    private string message   = string.Empty;
     private string loadError = string.Empty;
 
     protected override async Task OnInitializedAsync()
@@ -133,7 +133,7 @@ else
 
     private void ToggleForm() { showForm = !showForm; message = string.Empty; }
 
-    private async Task HandleCreateOrder(CreateOrderRequest request)
+    private async Task HandleCreateOrder(CreateOrderDto request)
     {
         isSaving = true;
         try
